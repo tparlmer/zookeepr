@@ -2,6 +2,7 @@ const express = require("express");
 const { animals } = require("./data/animals.json");
 
 // this instantiates the server
+const PORT = process.env.PORT || 3001;
 const app = express();
 
 function filterByQuery(query, animalsArray) {
@@ -49,18 +50,36 @@ function filterByQuery(query, animalsArray) {
   return filteredResults;
 }
 
+function findById(id, animalsArray) {
+  const result = animalsArray.filter(animal => animal.id === id)[0];
+  return result;
+}
+
 // req -> request / res -> response
 // this adds the route for the server
 // the get method requires two arguments, req and res
 app.get("/api/animals", (req, res) => {
   let results = animals;
+  // req.query means query method is used on req (short for request)
+  // takes query parameter and turns it into a json
+  // executes filterByQuery function written above
   if (req.query) {
     results = filterByQuery(req.query, results);
   }
+  // responds to get request with json (.json method)
   res.json(results);
 });
 
+app.get('/api/animals/:id', (req, res) => {
+  const result = findById(req.params.id, animals);
+  if (result) {
+    res.json(result);
+  } else {
+    res.send(404);
+  }
+});
+
 // this listens from the server
-app.listen(3001, () => {
-  console.log(`API server now on port 3001!`);
+app.listen(PORT, () => {
+  console.log(`API server now on port ${PORT}!`);
 });
